@@ -1,9 +1,6 @@
-# OpenGL Engine
+# Ray-Marching
 ## Project Description
-This project is an implementation of a graphics engine using OpenGL with the GLAD implementation.
-It uses GLFW for window and event handling.
-
-This project is a way to learn OpenGL, I am following [Joey de Vries's tutorial](https://learnopengl.com/).
+This project is an implementation of the ray-marching technique using Open-GL and GLSL.
 
 ## Setup
 ### Dependencies
@@ -14,8 +11,8 @@ sudo apt install g++ cmake make libglfw3-dev libxxf86vm-dev libxi-dev -y
 
 ### Clone Repository
 ```shell
-git clone https://github.com/llikian/OpenGL-Engine.git
-cd OpenGL-Engine
+git clone https://github.com/llikian/Ray-Marching.git
+cd Ray-Marching
 ```
 
 ### Build
@@ -32,12 +29,10 @@ cmake --build build -j
 
 Then you can run it using:
 ```shell
-bin/OpenGL-Engine
+bin/Ray-Marching
 ```
 
 ## Credits
 Graphics are handled with [OpenGL](https://www.opengl.org/), using the [GLAD](https://github.com/Dav1dde/glad) implementation.
 
 Window management and event handling are done with [GLFW](https://www.glfw.org/).
-
-Image loading is done with [stb_image](https://github.com/nothings/stb).
