@@ -251,3 +251,40 @@ vec4 map8(in vec3 pos) {
 
     return result;
 }
+
+vec4 map9(in vec3 pos) {
+    vec3 p = pos;
+    vec4 ground = vec4(1.0f, 1.0f, 1.0f, p.y + 1.0f);
+
+    p = pos;
+    vec4 sphere;
+    sphere.rgb = vec3(1.0f);
+    sphere.w = SDF_Sphere(p, 1.5f);
+
+    p = pos;
+    p.y -= 1.0f + sin(time);
+    p.xz *= rotation2D(time);
+    vec4 cube;
+    cube.rgb = vec3(1.0f, 0.0f, 0.0f);
+    cube.w = SDF_RoundBox(p, vec3(1.0f), 0.1f);
+
+    p = pos;
+    p.xz *= rotation2D(time);
+    p.x -= 1.0f + sin(time);
+    vec4 cube2;
+    cube2.rgb = vec3(0.0f, 1.0f, 0.0f);
+    cube2.w = SDF_RoundBox(p, vec3(1.0f), 0.1f);
+
+    p = pos;
+    p.xz *= rotation2D(time);
+    p.x += 1.0f + sin(time);
+    vec4 cube3;
+    cube3.rgb = vec3(0.0f, 0.0f, 1.0f);
+    cube3.w = SDF_RoundBox(p, vec3(1.0f), 0.1f);
+
+    cube = sUnionSDF(cube, sUnionSDF(cube2, cube3, 0.5f), 0.5f);
+
+    vec4 result = unionSDF(ground, sUnionSDF(sphere, cube, 0.5f));
+
+    return result;
+}
