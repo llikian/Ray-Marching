@@ -25,6 +25,11 @@ float SDF_Cylinder(in vec3 pos, in vec3 c) {
     return length(pos.xz - c.xy) - c.z;
 }
 
+float SDF_CappedCylinder(in vec3 pos, in float height, in float radius) {
+    vec2 d = abs(vec2(length(pos.xz), pos.y)) - vec2(radius, height);
+    return min(max(d.x, d.y), 0.0f) + length(max(d, 0.0f));
+}
+
 float SDF_Cone(in vec3 pos, in vec2 c, in float height) {
     // c is the sin/cos of the angle, h is height
     vec2 q = height * vec2(c.x / c.y, -1.0f);
