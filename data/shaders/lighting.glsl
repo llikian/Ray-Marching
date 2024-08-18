@@ -4,16 +4,17 @@
  **************************************************************************************************/
 
 vec3 getNormal(in vec3 pos) {
-    vec2 epsilon = vec2(0.001f, 0.0f);
+    vec2 epsilon = vec2(MIN_DISTANCE, 0.0f);
 
-    vec3 v1 = vec3(map(pos + epsilon.xyy).w, map(pos + epsilon.yxy).w, map(pos + epsilon.yyx).w);
-    vec3 v2 = vec3(map(pos - epsilon.xyy).w, map(pos - epsilon.yxy).w, map(pos - epsilon.yyx).w);
+    vec3 normal = map(pos).www;
+    normal.x -= map(pos - epsilon.xyy).w;
+    normal.y -= map(pos - epsilon.yxy).w;
+    normal.z -= map(pos - epsilon.yyx).w;
 
-    return normalize(v1 - v2);
+    return normalize(normal);
 }
 
 vec3 phongLighting(in Ray ray, in vec3 pos) {
-    const vec3 lightPos = LIGHT_POSITION;
     const vec3 lightColor = vec3(1.0f);
     const vec3 normal = getNormal(pos);
 
@@ -21,7 +22,7 @@ vec3 phongLighting(in Ray ray, in vec3 pos) {
     float ambient = 0.2f;
 
     // Diffuse Lighting
-    vec3 lightDirection = normalize(lightPos - pos);
+    vec3 lightDirection = normalize(LIGHT_POSITION - pos);
     float diffuse = max(dot(normal, lightDirection), 0.0f);
 
     // Specular lighting
@@ -31,7 +32,7 @@ vec3 phongLighting(in Ray ray, in vec3 pos) {
 
     // Shadows
     float distance = raymarch(pos + normal * MIN_DISTANCE * 2.0f, lightDirection);
-    if(distance < length(lightPos - pos)) {
+    if(distance < length(LIGHT_POSITION - pos)) {
         return vec3(ambient);
     }
 
