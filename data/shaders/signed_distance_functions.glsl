@@ -37,3 +37,8 @@ float SDF_Cone(in vec3 pos, in vec2 c, in float height) {
     float s = max(k * (w.x * q.y - w.y * q.x), k * (w.y - q.y));
     return sqrt(d) * sign(s);
 }
+
+float SDF_Torus(in vec3 pos, in vec2 t) {
+    vec2 q = vec2(length(pos.xz) - t.x, pos.y);
+    return length(q) - t.y;
+}
