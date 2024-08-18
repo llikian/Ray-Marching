@@ -1,3 +1,0 @@
-/home/llikian/dev/C++/Ray-Marching/build/CMakeFiles/Ray-Marching.dir
-/home/llikian/dev/C++/Ray-Marching/build/CMakeFiles/edit_cache.dir
-/home/llikian/dev/C++/Ray-Marching/build/CMakeFiles/rebuild_cache.dir
