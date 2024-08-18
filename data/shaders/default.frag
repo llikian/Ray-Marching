@@ -19,7 +19,7 @@ uniform uint active_scene;
 uniform bool hasLighting;
 
 //const vec3 LIGHT_POSITION = 10.0f * vec3(cos(time), 1.0f, sin(time));
-const vec3 LIGHT_POSITION = 10.0f * vec3(2.5f, 7.5f, 2.5f);
+const vec3 LIGHT_POSITION = 30.0f * vec3(2.5f, 7.5f, 2.5f);
 
 #include "raymarching.glsl"
 #include "lighting.glsl"
@@ -38,7 +38,7 @@ void render(inout vec3 color, in vec2 uv) {
             color *= vec3(0.15f * distance);
         }
     } else {
-        color += background + max(0.75f * ray.direction.y, 0.0f);
+        color = background + max(0.75f * ray.direction.y, 0.0f);
     }
 }
 
