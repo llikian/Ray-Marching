@@ -5,9 +5,9 @@
 
 #include "maps.glsl"
 
-const uint MAX_STEPS = 256;
+const uint MAX_STEPS = 128u;
 const float MIN_DISTANCE = 0.001f;
-const float MAX_DISTANCE = 1000.0f;
+const float MAX_DISTANCE = 500.0f;
 
 struct Ray {
     vec3 origin;
@@ -34,7 +34,7 @@ float raymarch(in Ray ray, inout vec3 color) {
     vec4 distance;
     float distanceFromOrigin = 0.0f;
 
-    for(uint i = 0 ; i < MAX_STEPS ; ++i) {
+    for(uint i = 0u ; i < MAX_STEPS ; ++i) {
         if(distanceFromOrigin >= MAX_DISTANCE) {
             break;
         }
@@ -53,12 +53,6 @@ float raymarch(in Ray ray, inout vec3 color) {
 }
 
 float raymarch(in vec3 rayOrigin, in vec3 rayDirection) {
-    Ray ray;
-
-    ray.origin = rayOrigin;
-    ray.direction = rayDirection;
-
     vec3 color = vec3(0.0f);
-
-    return raymarch(ray, color);
+    return raymarch(Ray(rayOrigin, rayDirection), color);
 }
