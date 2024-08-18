@@ -6,10 +6,10 @@
 vec3 getNormal(in vec3 pos) {
     vec2 epsilon = vec2(MIN_DISTANCE, 0.0f);
 
-    vec3 normal = map(pos).www;
-    normal.x -= map(pos - epsilon.xyy).w;
-    normal.y -= map(pos - epsilon.yxy).w;
-    normal.z -= map(pos - epsilon.yyx).w;
+    vec3 normal;
+    normal.x = map(pos + epsilon.xyy).w - map(pos - epsilon.xyy).w;
+    normal.y = map(pos + epsilon.yxy).w - map(pos - epsilon.yxy).w;
+    normal.z = map(pos + epsilon.yyx).w - map(pos - epsilon.yyx).w;
 
     return normalize(normal);
 }
@@ -30,9 +30,9 @@ vec3 phongLighting(in Ray ray, in vec3 pos) {
     float specular = 0.25f * pow(max(dot(-ray.direction, reflectionDir), 0.0f), 32.0f);
 
     // Shadows
-    float distance = raymarch(pos + normal * MIN_DISTANCE * 2.0f, lightDirection);
+    float distance = raymarch(pos + normal * 0.02f, lightDirection);
     if(distance < length(LIGHT_POSITION - pos)) {
-        return vec3(ambient);
+        return lightColor * ambient;
     }
 
     return lightColor * (ambient + diffuse + specular);
