@@ -35,13 +35,11 @@ vec4 map2(in vec3 pos) {
     p = mod(p, 2.0f) - 0.75f;
     float cylinder = SDF_Cylinder(p, vec3(0.25f));
 
-    p = pos;
-    p.xy *= rotation2D(radians(90.0f));
+    p = pos.zxy;
     p = mod(p, 2.0f) - 0.75f;
     cylinder = smin(cylinder, SDF_Cylinder(p, vec3(0.25f)), 0.1f);
 
-    p = pos;
-    p.yz *= rotation2D(radians(90.0f));
+    p = pos.yzx;
     p = mod(p, 2.0f) - 0.75f;
     cylinder = smin(cylinder, SDF_Cylinder(p, vec3(0.25f)), 0.1f);
 
@@ -263,20 +261,17 @@ vec4 map9(in vec3 pos) {
 
     p = pos;
     p.y -= 1.0f + sin(time);
-    p.xz *= rotation2D(time);
     vec4 cube;
     cube.rgb = vec3(1.0f, 0.0f, 0.0f);
     cube.w = SDF_RoundBox(p, vec3(1.0f), 0.1f);
 
     p = pos;
-    p.xz *= rotation2D(time);
     p.x -= 1.0f + sin(time);
     vec4 cube2;
     cube2.rgb = vec3(0.0f, 1.0f, 0.0f);
     cube2.w = SDF_RoundBox(p, vec3(1.0f), 0.1f);
 
     p = pos;
-    p.xz *= rotation2D(time);
     p.x += 1.0f + sin(time);
     vec4 cube3;
     cube3.rgb = vec3(0.0f, 0.0f, 1.0f);
@@ -285,6 +280,28 @@ vec4 map9(in vec3 pos) {
     cube = sUnionSDF(cube, sUnionSDF(cube2, cube3, 0.5f), 0.5f);
 
     vec4 result = unionSDF(ground, sUnionSDF(sphere, cube, 0.5f));
+
+    return result;
+}
+
+vec4 map10(in vec3 pos) {
+    vec3 p = pos;
+    vec4 ground;
+    ground.rgb = checker(pos, vec3(0.89f, 0.847f, 0.471f), vec3(0.89f, 0.337f, 0.306f));
+    ground.w = p.y + 10.0f;
+
+    p = pos;
+    vec4 sphere;
+    sphere.rgb = vec3(0.5f, 0.333f, 0.666f);
+    sphere.rgb = mix(vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), sin(p.x + 2.0f * time) * sin(p.y + sin(0.25f * time)) * sin(p.z + 3.0f * time) * 0.5f + 0.5f);
+
+    sphere.w = SDF_Sphere(p, 10.0f);
+//    sphere.w = SDF_Torus(p, vec2(10.0f, 1.0f));
+//    sphere.w = SDF_CappedCylinder(p, 10.0f, 2.0f);
+
+    sphere.w += sin(p.x + 2.0f * time) * sin(p.y + sin(0.25f * time)) * sin(p.z + 3.0f * time);
+
+    vec4 result = unionSDF(ground, sphere);
 
     return result;
 }
