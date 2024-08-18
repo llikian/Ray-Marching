@@ -27,7 +27,7 @@ Application::Application()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    window = glfwCreateWindow(width, height, "Raymarching", nullptr, nullptr);
+    window = glfwCreateWindow(width, height, "Ray-Marching", nullptr, nullptr);
     if(!window) {
         throw std::runtime_error("Failed to create window.");
     }
