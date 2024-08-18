@@ -7,6 +7,10 @@
 #include "transformations.glsl"
 #include "utility.glsl"
 
+const vec3 RED = vec3(1.0f, 0.0f, 0.0f);
+const vec3 GREEN = vec3(0.0f, 1.0f, 0.0f);
+const vec3 BLUE = vec3(0.0f, 0.0f, 1.0f);
+
 vec4 map1(in vec3 pos) {
     vec3 p;
     
@@ -65,7 +69,7 @@ vec4 map3(in vec3 pos) {
     p.xy = mod(p.xy, 2.0f) - 0.5f;
     cylinder = smin(cylinder, SDF_Cylinder(p, vec3(0.5f)), 0.2f);
     
-    float ground = SDF_Plane(pos, vec3(0.0f, 1.0f, 0.0f), 0.5f + 0.5f * sin(time));
+    float ground = SDF_Plane(pos, GREEN, 0.5f + 0.5f * sin(time));
 
     vec3 color = vec3(0.5f, 0.0f, 0.5f);
     return vec4(color, smax(ground, -cylinder, 0.5f));
@@ -138,7 +142,7 @@ vec4 map4(in vec3 pos) {
 
 vec4 map5(in vec3 pos) {
     vec3 p = pos;
-    float ground = SDF_Plane(p, vec3(0.0f, 1.0f, 0.0f), 1.0f);
+    float ground = SDF_Plane(p, GREEN, 1.0f);
     float sphere = SDF_Sphere(p, 1.0f);
     float cube = SDF_Box(p, vec3(1.0f));
 
@@ -155,7 +159,7 @@ vec4 map5(in vec3 pos) {
 }
 
 vec4 map6(in vec3 pos) {
-    float ground = SDF_Plane(pos, vec3(0.0f, 1.0f, 0.0f), 1.0f);
+    float ground = SDF_Plane(pos, GREEN, 1.0f);
 
     pos = clamp(pos, -8.0f, 8.0f);
     pos = mod(pos, 4.0f) - 2.0f;
@@ -172,8 +176,8 @@ vec4 map6(in vec3 pos) {
 vec4 map7(in vec3 pos) {
     vec3 p = pos;
     vec4 ground;
-    ground.rgb = vec3(1.0f, 0.0f, 0.0f);
-    ground.w = SDF_Plane(p, vec3(0.0f, 1.0f, 0.0f), 0.5f + 0.5f * sin(time));
+    ground.rgb = RED;
+    ground.w = SDF_Plane(p, GREEN, 0.5f + 0.5f * sin(time));
 
     p = pos;
     p.y += 0.5f;
@@ -262,19 +266,19 @@ vec4 map9(in vec3 pos) {
     p = pos;
     p.y -= 1.0f + sin(time);
     vec4 cube;
-    cube.rgb = vec3(1.0f, 0.0f, 0.0f);
+    cube.rgb = RED;
     cube.w = SDF_RoundBox(p, vec3(1.0f), 0.1f);
 
     p = pos;
     p.x -= 1.0f + sin(time);
     vec4 cube2;
-    cube2.rgb = vec3(0.0f, 1.0f, 0.0f);
+    cube2.rgb = GREEN;
     cube2.w = SDF_RoundBox(p, vec3(1.0f), 0.1f);
 
     p = pos;
     p.x += 1.0f + sin(time);
     vec4 cube3;
-    cube3.rgb = vec3(0.0f, 0.0f, 1.0f);
+    cube3.rgb = BLUE;
     cube3.w = SDF_RoundBox(p, vec3(1.0f), 0.1f);
 
     cube = sUnionSDF(cube, sUnionSDF(cube2, cube3, 0.5f), 0.5f);
@@ -291,15 +295,15 @@ vec4 map10(in vec3 pos) {
     ground.w = p.y + 10.0f;
 
     p = pos;
+    float displacement = sin(p.x + 2.0f * time) * sin(p.y + sin(0.25f * time)) * sin(p.z + 3.0f * time);
     vec4 sphere;
-    sphere.rgb = vec3(0.5f, 0.333f, 0.666f);
-    sphere.rgb = mix(vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), sin(p.x + 2.0f * time) * sin(p.y + sin(0.25f * time)) * sin(p.z + 3.0f * time) * 0.5f + 0.5f);
+    sphere.rgb = mix(BLUE, GREEN, 0.5f + 0.5f * displacement);
 
     sphere.w = SDF_Sphere(p, 10.0f);
 //    sphere.w = SDF_Torus(p, vec2(10.0f, 1.0f));
 //    sphere.w = SDF_CappedCylinder(p, 10.0f, 2.0f);
 
-    sphere.w += sin(p.x + 2.0f * time) * sin(p.y + sin(0.25f * time)) * sin(p.z + 3.0f * time);
+    sphere.w += displacement;
 
     vec4 result = unionSDF(ground, sphere);
 
