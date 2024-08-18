@@ -23,12 +23,11 @@ vec3 phongLighting(in Ray ray, in vec3 pos) {
 
     // Diffuse Lighting
     vec3 lightDirection = normalize(LIGHT_POSITION - pos);
-    float diffuse = max(dot(normal, lightDirection), 0.0f);
+    float diffuse = clamp(dot(normal, lightDirection), 0.0f, 1.0f);
 
     // Specular lighting
-    vec3 viewDirection = normalize(ray.origin - pos);
     vec3 reflectionDir = reflect(-lightDirection, normal);
-    float specular = 0.25f * pow(max(dot(viewDirection, reflectionDir), 0.0f), 32.0f);
+    float specular = 0.25f * pow(max(dot(-ray.direction, reflectionDir), 0.0f), 32.0f);
 
     // Shadows
     float distance = raymarch(pos + normal * MIN_DISTANCE * 2.0f, lightDirection);
@@ -36,5 +35,5 @@ vec3 phongLighting(in Ray ray, in vec3 pos) {
         return vec3(ambient);
     }
 
-    return (ambient + diffuse + specular) * lightColor;
+    return lightColor * (ambient + diffuse + specular);
 }
