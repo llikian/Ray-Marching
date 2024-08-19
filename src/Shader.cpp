@@ -36,6 +36,9 @@ std::string preprocessShader(const std::filesystem::path& path) {
         }
     }
 
+    std::ofstream oFile("temp/fragment_shader.glsl");
+    oFile << output.str();
+
     return output.str();
 }
 
