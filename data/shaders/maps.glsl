@@ -298,7 +298,6 @@ vec4 map10(in vec3 pos) {
     float displacement = sin(p.x + 2.0f * time) * sin(p.y + sin(0.25f * time)) * sin(p.z + 3.0f * time);
     vec4 sphere;
     sphere.rgb = mix(BLUE, GREEN, 0.5f + 0.5f * displacement);
-
     sphere.w = SDF_Sphere(p, 10.0f) + displacement;
 
     vec4 result = unionSDF(ground, sphere);
