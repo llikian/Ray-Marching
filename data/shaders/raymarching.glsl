@@ -16,17 +16,17 @@ struct Ray {
 
 vec4 map(in vec3 pos) {
     switch(active_scene) {
-        case 0: return map1(pos);
-        case 1: return map2(pos);
-        case 2: return map3(pos);
-        case 3: return map4(pos);
-        case 4: return map5(pos);
-        case 5: return map6(pos);
-        case 6: return map7(pos);
-        case 7: return map8(pos);
-        case 8: return map9(pos);
-        case 9: return map10(pos);
-        case 10: return map11(pos);
+        case 0u: return map1(pos);
+        case 1u: return map2(pos);
+        case 2u: return map3(pos);
+        case 3u: return map4(pos);
+        case 4u: return map5(pos);
+        case 5u: return map6(pos);
+        case 6u: return map7(pos);
+        case 7u: return map8(pos);
+        case 8u: return map9(pos);
+        case 9u: return map10(pos);
+        case 10u: return map11(pos);
         default: return map1(pos);
     }
 }
