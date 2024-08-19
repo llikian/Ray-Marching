@@ -327,3 +327,21 @@ vec4 map11(in vec3 pos) {
 
     return torus;
 }
+
+vec4 map12(in vec3 pos) {
+    vec3 p = pos;
+
+    vec4 ground;
+    ground.rgb = checker(p, vec3(0.471f, 0.89f, 0.847f), vec3(0.306f, 0.337f, 0.89f));
+    ground.w = p.y + 10.0f;
+
+    float factor = 2.5f;
+    float displacement = sin(time + factor * p.x) * sin(factor * p.y + time) * sin(factor * p.z + time) * 0.5f - 0.5f;
+    vec4 sphere;
+    sphere.rgb = vec3(-displacement, -displacement, 0.25f);
+    sphere.w = SDF_Sphere(p, 10.0f) + displacement;
+
+    vec4 result = unionSDF(ground, sphere);
+
+    return result;
+}
