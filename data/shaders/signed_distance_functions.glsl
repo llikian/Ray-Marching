@@ -43,7 +43,7 @@ float SDF_Cone(in vec3 pos, in vec2 c, in float height) {
     return sqrt(d) * sign(s);
 }
 
-float SDF_Torus(in vec3 pos, in vec2 t) {
-    vec2 q = vec2(length(pos.xz) - t.x, pos.y);
-    return length(q) - t.y;
+float SDF_Torus(in vec3 pos, in float Radius, in float radius) {
+    vec2 q = vec2(length(pos.xz) - Radius, pos.y);
+    return length(q) - radius;
 }
