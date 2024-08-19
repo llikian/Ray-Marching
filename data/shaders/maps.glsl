@@ -290,22 +290,41 @@ vec4 map9(in vec3 pos) {
 
 vec4 map10(in vec3 pos) {
     vec3 p = pos;
+
     vec4 ground;
-    ground.rgb = checker(pos, vec3(0.89f, 0.847f, 0.471f), vec3(0.89f, 0.337f, 0.306f));
+    ground.rgb = checker(p, vec3(0.89f, 0.847f, 0.471f), vec3(0.89f, 0.337f, 0.306f));
     ground.w = p.y + 10.0f;
 
-    p = pos;
     float displacement = sin(p.x + 2.0f * time) * sin(p.y + sin(0.25f * time)) * sin(p.z + 3.0f * time);
     vec4 sphere;
     sphere.rgb = mix(BLUE, GREEN, 0.5f + 0.5f * displacement);
 
-    sphere.w = SDF_Sphere(p, 10.0f);
-//    sphere.w = SDF_Torus(p, vec2(10.0f, 1.0f));
-//    sphere.w = SDF_CappedCylinder(p, 10.0f, 2.0f);
-
-    sphere.w += displacement;
+    sphere.w = SDF_Sphere(p, 10.0f) + displacement;
 
     vec4 result = unionSDF(ground, sphere);
 
     return result;
+}
+
+vec4 map11(in vec3 pos) {
+    vec3 p = pos;
+
+    float R = 50.0f, r = 2.0f;
+    float displacement = sin(p.x + 2.0f * time) * sin(p.y + sin(0.25f * time)) * sin(p.z + 3.0f * time);
+
+    vec4 torus;
+    torus.rgb = mix(BLUE, GREEN, 0.5f + 0.5f * displacement);
+
+    p = pos - vec3(-R / 2.0f, 0.0f, 0.0f);
+    torus.w = SDF_Torus(p, R, r);
+
+    p = pos - vec3(R / 2.0f, 0.0f, 0.0f);
+    torus = sUnionSDF(torus, vec4(torus.grb, SDF_Torus(p, R, r)), 0.5f);
+
+    p = pos.xzy;
+    torus = sUnionSDF(torus, vec4(torus.rgb, SDF_Torus(p, R, r)), 0.5f);
+
+    torus.w += displacement;
+
+    return torus;
 }

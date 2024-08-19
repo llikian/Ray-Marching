@@ -26,6 +26,7 @@ vec4 map(in vec3 pos) {
         case 7: return map8(pos);
         case 8: return map9(pos);
         case 9: return map10(pos);
+        case 10: return map11(pos);
         default: return map1(pos);
     }
 }
