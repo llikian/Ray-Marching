@@ -15,7 +15,7 @@ uniform vec3 cameraFront;
 uniform vec3 cameraRight;
 uniform vec3 cameraUp;
 
-uniform uint active_scene = 0u;
+uniform uint active_scene;
 uniform bool hasLighting;
 
 const vec3 LIGHT_POSITION = 30.0f * vec3(2.5f, 7.5f, 2.5f);
