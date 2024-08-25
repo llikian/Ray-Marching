@@ -15,18 +15,13 @@ uniform vec3 cameraFront;
 uniform vec3 cameraRight;
 uniform vec3 cameraUp;
 
-uniform uint active_scene;
+uniform uint active_scene = 0u;
 uniform bool hasLighting;
 
-//const vec3 LIGHT_POSITION = 30.0f * vec3(cos(time), 1.0f, sin(time));
 const vec3 LIGHT_POSITION = 30.0f * vec3(2.5f, 7.5f, 2.5f);
 
 #include "render.glsl"
 
 void main() {
-    // If I remove this everything breaks
-    getNormal(vec3(0.0f));
-    // "(0) : fatal error C9999: Unhandled expr op assign+(179) in CreateDag"
-
     fragColor = vec4(renderAntiAliasing4(), 1.0f);
 }
