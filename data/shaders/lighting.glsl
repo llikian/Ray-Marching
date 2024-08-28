@@ -14,8 +14,41 @@ vec3 getNormal(in vec3 pos) {
     return normalize(normal);
 }
 
+float getAmbientOcclusion(in vec3 pos, in vec3 normal) {
+    float occlusion = 0.0f;
+    float weight = 1.0f;
+
+    for(uint i = 0u ; i < 8u ; ++i) {
+        float len = 0.01f + 0.02f * float(i * i);
+        float distance = map(pos + normal * len).w;
+        occlusion += (len - distance) * weight;
+    }
+
+    return 1.0f - clamp(0.6f * occlusion, 0.0f, 1.0f);
+}
+
+float getSoftShadow(vec3 pos) {
+    const vec3 lightPos = normalize(LIGHT_POSITION);
+    float lightSize = 0.05f;
+
+    float distance;
+    float distanceFromOrigin = 0.0f;
+    float res = 1.0f;
+
+    for(uint i = 0u; i < MAX_STEPS; ++i) {
+        distance = map(pos + lightPos * distanceFromOrigin).w;
+        res = min(res, distance / (distanceFromOrigin * lightSize));
+        distanceFromOrigin += distance;
+
+        if(abs(distance) < MIN_DISTANCE || distanceFromOrigin > MAX_DISTANCE) {
+            break;
+        }
+    }
+
+    return clamp(res, 0.0f, 1.0f);
+}
+
 vec3 phongLighting(in Ray ray, in vec3 pos) {
-    const vec3 lightColor = vec3(1.0f);
     const vec3 normal = getNormal(pos);
 
     // Ambient Lighting
@@ -29,13 +62,15 @@ vec3 phongLighting(in Ray ray, in vec3 pos) {
     vec3 reflectionDir = reflect(-lightDirection, normal);
     float specular = 0.25f * pow(max(dot(-ray.direction, reflectionDir), 0.0f), 32.0f);
 
-    // Shadows
-    if(hasShadows){
-        float distance = raymarch(pos + normal * 0.02f, lightDirection);
-        if(distance < length(LIGHT_POSITION - pos)) {
-            return lightColor * ambient;
-        }
-    }
+    // Fresnel Effect
+    float fresnel = 1.0f + dot(ray.direction, normal);
+    fresnel = 0.25f * fresnel * fresnel * fresnel;
 
-    return lightColor * (ambient + diffuse + specular);
+    // Shadows
+    float shadows = hasShadows ? getSoftShadow(pos + normal * 0.02f) : 1.0f;
+
+    // Ambient Occlusion
+    float occlusion = getAmbientOcclusion(pos, normal);
+
+    return vec3(occlusion * (ambient + fresnel) + shadows * (diffuse + occlusion * specular));
 }

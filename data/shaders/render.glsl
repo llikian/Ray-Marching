@@ -11,13 +11,12 @@ vec2 getUV(in vec2 offset) {
 }
 
 vec3 render(in vec2 uvOffset) {
-    vec3 color = vec3(0.0f);
+    const vec3 background = vec3(0.125f, 0.5f, 0.8f);
+    vec3 color = background;
 
     vec2 uv = getUV(uvOffset);
     Ray ray = Ray(cameraPos, normalize(cameraFront + uv.x * cameraRight + uv.y * cameraUp));
     float distance = raymarch(ray, color);
-
-    const vec3 background = vec3(0.125f, 0.5f, 0.8f);
 
     if(distance < MAX_DISTANCE) {
         if(hasLighting) {

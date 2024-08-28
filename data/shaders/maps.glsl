@@ -36,148 +36,145 @@ vec4 map2(in vec3 pos) {
     hasShadows = false;
 
     vec3 p;
-    pos -= vec3(6.0f, -3.0f, -1.0f);
 
-    p = pos;
-    p = mod(p, 2.0f) - 0.75f;
-    float cylinder = SDF_Cylinder(p, vec3(0.25f));
+    float repetition = 12.0f;
+    float radius = 2.0f;
+    vec3 translation = 5.5f * vec3(radius, 0.0f, radius);
 
-    p = pos.zxy;
-    p = mod(p, 2.0f) - 0.75f;
-    cylinder = smin(cylinder, SDF_Cylinder(p, vec3(0.25f)), 0.1f);
+    vec4 cylinder;
+    cylinder.rgb = vec3(0.25f, 0.8f, 0.4f);
+    p = pos + translation;
+    p = mod(p, repetition) - 0.25f * repetition;
+    cylinder.w = SDF_Cylinder(p, vec3(radius));
 
-    p = pos.yzx;
-    p = mod(p, 2.0f) - 0.75f;
-    cylinder = smin(cylinder, SDF_Cylinder(p, vec3(0.25f)), 0.1f);
+    p = mod(pos.zxy + translation, repetition) - 0.25f * repetition;
+    cylinder.w = smin(cylinder.w, SDF_Cylinder(p, vec3(radius)), 0.1f);
 
-    p = pos;
-    p = mod(p, 12.0f) - 6.0f;
-    float cube = SDF_RoundBox(p, vec3(4.0f), 1.0f);
+    p = mod(pos.yzx + translation, repetition) - 0.25f * repetition;
+    cylinder.w = smin(cylinder.w, SDF_Cylinder(p, vec3(radius)), 0.1f);
 
-    vec3 color = vec3(0.5f, 0.0f, 0.5f);
-    return vec4(color, smax(-cube, -cylinder, 0.5f));
-    //    return smax(cube, cylinder, 0.5f);
-    //    return smax(cube, -cylinder, 0.5f);
+    vec4 cube;
+    cube.rgb = vec3(0.25f, 0.5f, 0.4f);
+    p = mod(pos, repetition) - 0.5f * repetition;
+    cube.w = -SDF_RoundBox(p, vec3(4.0f), 1.0f);
+
+    return sDifferenceSDF(cube, cylinder, 0.5f);
 }
 
 vec4 map3(in vec3 pos) {
     vec3 p = pos;
+
+    vec4 cylinder;
+    cylinder.rgb = vec3(0.9f, 0.45f, 0.75f);
     p.xz += vec2(time);
     p.xy *= rotation2D(radians(90.0f));
     p.yz = mod(p.yz, 2.0f) - 0.5f;
-    float cylinder = SDF_Cylinder(p, vec3(0.5f));
+    cylinder.w = SDF_Cylinder(p, vec3(0.5f));
 
     p = pos;
     p.zy *= rotation2D(radians(90.0f));
     p.xy = mod(p.xy, 2.0f) - 0.5f;
-    cylinder = smin(cylinder, SDF_Cylinder(p, vec3(0.5f)), 0.2f);
-    
-    float ground = SDF_Plane(pos, GREEN, 0.5f + 0.5f * sin(time));
+    cylinder.w = smin(cylinder.w, SDF_Cylinder(p, vec3(0.5f)), 0.2f);
 
-    vec3 color = vec3(0.5f, 0.0f, 0.5f);
-    return vec4(color, smax(ground, -cylinder, 0.5f));
+    vec4 ground;
+    ground.rgb = vec3(0.75f, 0.3f, 0.6f);
+    ground.w = SDF_Plane(pos, vec3(0.0f, 1.0f, 0.0f), 0.5f + 0.5f * sin(time));
+
+    return sDifferenceSDF(ground, cylinder, 0.5f);
 }
 
 vec4 map4(in vec3 pos) {
     hasShadows = false;
 
     vec3 p;
-    float result;
 
-    float box, beams;
+    vec4 box = vec4(RED, 0.0f);
+    vec4 beams = vec4(BLUE, 0.0f);
 
     float distance = 8.0f;
     float smoothing = 1.0f;
 
+    vec4 result;
+
     p = pos - vec3(distance, -2.0f * -distance, 0.0f);
-    box = SDF_Box(p, vec3(2.0f));
+    box.w = SDF_Box(p, vec3(2.0f));
     result = box;
 
     p = pos - vec3(-distance, -2.0f * -distance, 0.0f);
-    beams = SDF_Box(p, vec3(1.0f, 3.0f, 1.0f));
-    beams = min(beams, SDF_Box(p, vec3(3.0f, 1.0f, 1.0f)));
-    beams = min(beams, SDF_Box(p, vec3(1.0f, 1.0f, 3.0f)));
-    result = min(result, beams);
-
-    p = pos - vec3(distance, 0.0f, 0.0f);
-    box = SDF_Box(p, vec3(2.0f));
-    beams = SDF_Box(p, vec3(1.0f, 3.0f, 1.0f));
-    beams = min(beams, SDF_Box(p, vec3(3.0f, 1.0f, 1.0f)));
-    beams = min(beams, SDF_Box(p, vec3(1.0f, 1.0f, 3.0f)));
-    result = min(result, min(box, beams));
-
-    p = pos;
-    box = SDF_Box(p, vec3(2.0f));
-    beams = SDF_Box(p, vec3(1.0f, 3.0f, 1.0f));
-    beams = min(beams, SDF_Box(p, vec3(3.0f, 1.0f, 1.0f)));
-    beams = min(beams, SDF_Box(p, vec3(1.0f, 1.0f, 3.0f)));
-    result = min(result, max(box, beams));
+    beams.w = SDF_Box(p, vec3(1.0f, 3.0f, 1.0f));
+    beams.w = min(beams.w, SDF_Box(p, vec3(3.0f, 1.0f, 1.0f)));
+    beams.w = min(beams.w, SDF_Box(p, vec3(1.0f, 1.0f, 3.0f)));
+    result = unionSDF(result, beams);
 
     p = pos - vec3(-distance, 0.0f, 0.0f);
-    box = SDF_Box(p, vec3(2.0f));
-    beams = SDF_Box(p, vec3(1.0f, 3.0f, 1.0f));
-    beams = min(beams, SDF_Box(p, vec3(3.0f, 1.0f, 1.0f)));
-    beams = min(beams, SDF_Box(p, vec3(1.0f, 1.0f, 3.0f)));
-    result = min(result, max(box, -beams));
+    box.w = SDF_Box(p, vec3(2.0f));
+    beams.w = SDF_Box(p, vec3(1.0f, 3.0f, 1.0f));
+    beams.w = min(beams.w, SDF_Box(p, vec3(3.0f, 1.0f, 1.0f)));
+    beams.w = min(beams.w, SDF_Box(p, vec3(1.0f, 1.0f, 3.0f)));
+    result = unionSDF(result, unionSDF(box, beams));
 
-    p = pos - vec3(distance, distance, 0.0f);
-    box = SDF_Box(p, vec3(2.0f));
-    beams = SDF_Box(p, vec3(1.0f, 3.0f, 1.0f));
-    beams = min(beams, SDF_Box(p, vec3(3.0f, 1.0f, 1.0f)));
-    beams = min(beams, SDF_Box(p, vec3(1.0f, 1.0f, 3.0f)));
-    result = min(result, smin(box, beams, smoothing));
+    p = pos;
+    box.w = SDF_Box(p, vec3(2.0f));
+    beams.w = SDF_Box(p, vec3(1.0f, 3.0f, 1.0f));
+    beams.w = min(beams.w, SDF_Box(p, vec3(3.0f, 1.0f, 1.0f)));
+    beams.w = min(beams.w, SDF_Box(p, vec3(1.0f, 1.0f, 3.0f)));
+    result = unionSDF(result, intersectSDF(box, beams));
 
-    p = pos - vec3(0.0f, distance, 0.0f);
-    box = SDF_Box(p, vec3(2.0f));
-    beams = SDF_Box(p, vec3(1.0f, 3.0f, 1.0f));
-    beams = min(beams, SDF_Box(p, vec3(3.0f, 1.0f, 1.0f)));
-    beams = min(beams, SDF_Box(p, vec3(1.0f, 1.0f, 3.0f)));
-    result = min(result, smax(box, beams, smoothing));
+    p = pos - vec3(distance, 0.0f, 0.0f);
+    box.w = SDF_Box(p, vec3(2.0f));
+    beams.w = SDF_Box(p, vec3(1.0f, 3.0f, 1.0f));
+    beams.w = min(beams.w, SDF_Box(p, vec3(3.0f, 1.0f, 1.0f)));
+    beams.w = min(beams.w, SDF_Box(p, vec3(1.0f, 1.0f, 3.0f)));
+    result = unionSDF(result, differenceSDF(box, beams));
 
     p = pos - vec3(-distance, distance, 0.0f);
-    box = SDF_Box(p, vec3(2.0f));
-    beams = SDF_Box(p, vec3(1.0f, 3.0f, 1.0f));
-    beams = min(beams, SDF_Box(p, vec3(3.0f, 1.0f, 1.0f)));
-    beams = min(beams, SDF_Box(p, vec3(1.0f, 1.0f, 3.0f)));
-    result = min(result, smax(box, -beams, smoothing));
+    box.w = SDF_Box(p, vec3(2.0f));
+    beams.w = SDF_Box(p, vec3(1.0f, 3.0f, 1.0f));
+    beams.w = min(beams.w, SDF_Box(p, vec3(3.0f, 1.0f, 1.0f)));
+    beams.w = min(beams.w, SDF_Box(p, vec3(1.0f, 1.0f, 3.0f)));
+    result = unionSDF(result, sUnionSDF(box, beams, smoothing));
 
-    vec3 color = vec3(0.5f, 0.0f, 0.5f);
-    return vec4(color, result);
+    p = pos - vec3(0.0f, distance, 0.0f);
+    box.w = SDF_Box(p, vec3(2.0f));
+    beams.w = SDF_Box(p, vec3(1.0f, 3.0f, 1.0f));
+    beams.w = min(beams.w, SDF_Box(p, vec3(3.0f, 1.0f, 1.0f)));
+    beams.w = min(beams.w, SDF_Box(p, vec3(1.0f, 1.0f, 3.0f)));
+    result = unionSDF(result, sIntersectSDF(box, beams, smoothing));
+
+    p = pos - vec3(distance, distance, 0.0f);
+    box.w = SDF_Box(p, vec3(2.0f));
+    beams.w = SDF_Box(p, vec3(1.0f, 3.0f, 1.0f));
+    beams.w = min(beams.w, SDF_Box(p, vec3(3.0f, 1.0f, 1.0f)));
+    beams.w = min(beams.w, SDF_Box(p, vec3(1.0f, 1.0f, 3.0f)));
+    result = unionSDF(result, sDifferenceSDF(box, beams, smoothing));
+
+    return result;
 }
 
 vec4 map5(in vec3 pos) {
     vec3 p = pos;
-    float ground = SDF_Plane(p, GREEN, 1.0f);
-    float sphere = SDF_Sphere(p, 1.0f);
-    float cube = SDF_Box(p, vec3(1.0f));
+    vec4 ground;
+    ground.rgb = vec3(1.0f);
+    ground.w= SDF_Plane(p, vec3(0.0f, 1.0f, 0.0f), 1.0f);
 
-    p = pos;
-    p.z -= sin(time);
-    p.y *= 4.0f;
-    // Need to divide by biggest scaling factor to keep lighting consistent
-    float disk = SDF_Sphere(p, 2.0f) / 4.0f;
-
-    vec3 color = vec3(0.5f, 0.0f, 0.5f);
-    return vec4(color, min(ground, smax(cube, -disk, 0.25f)));
-    //    return min(ground, mix(cube, sphere, 0.5f + 0.5f * sin(time)));
-    //    return min(ground, max(abs(sphere) - 0.05f, -SDF_Plane(pos, vec3(1.0f, -1.0f, 0.0f), 0.0f)));
+    return ground;
 }
 
 vec4 map6(in vec3 pos) {
     hasShadows = false;
 
-    float ground = SDF_Plane(pos, GREEN, 1.0f);
+    float l = 1.0f, s = 4.0f;
+    pos = pos - s * clamp(round(pos / s), -l, l);
+    vec4 cube;
+    cube.rgb = vec3(0.1f, 0.3f, 0.5f);
+    cube.w = SDF_Sphere(pos, 1.0f);
 
-    pos = clamp(pos, -8.0f, 8.0f);
-    pos = mod(pos, 4.0f) - 2.0f;
+    vec3 dim = vec3(0.4f, 1.5f, 0.4f);
+    vec4 cross;
+    cross.rgb = vec3(0.8f);
+    cross.w = min3(SDF_Box(pos, dim.xyz), SDF_Box(pos, dim.yzx), SDF_Box(pos, dim.zxy));
 
-    float cube = SDF_Box(pos, vec3(1.0f));
-
-    vec3 dim = vec3(0.5f, 1.5f, 0.5f);
-    float cross = min3(SDF_Box(pos, dim.xyz), SDF_Box(pos, dim.yzx), SDF_Box(pos, dim.zxy));
-
-    vec3 color = vec3(0.5f, 0.0f, 0.5f);
-    return vec4(color, max(cube, -cross));
+    return differenceSDF(cube, cross);
 }
 
 vec4 map7(in vec3 pos) {
@@ -302,10 +299,11 @@ vec4 map10(in vec3 pos) {
     ground.rgb = checker(p, vec3(0.89f, 0.847f, 0.471f), vec3(0.89f, 0.337f, 0.306f));
     ground.w = p.y + 10.0f;
 
-    float displacement = sin(p.x + 2.0f * time) * sin(p.y + sin(0.25f * time)) * sin(p.z + 3.0f * time);
+    vec3 factor = time * vec3(2.0f, 0.5f, 3.0f);
+    float displacement = sin(p.x + factor.x) * sin(p.y + factor.y) * sin(p.z + factor.z);
     vec4 sphere;
     sphere.rgb = mix(BLUE, GREEN, 0.5f + 0.5f * displacement);
-    sphere.w = SDF_Sphere(p, 10.0f) + displacement;
+    sphere.w = SDF_Sphere(p, 10.0f + displacement);
 
     vec4 result = unionSDF(ground, sphere);
 
@@ -315,8 +313,8 @@ vec4 map10(in vec3 pos) {
 vec4 map11(in vec3 pos) {
     vec3 p = pos;
 
-    float R = 50.0f, r = 2.0f;
     float displacement = sin(p.x + 2.0f * time) * sin(p.y + sin(0.25f * time)) * sin(p.z + 3.0f * time);
+    float R = 50.0f, r = 2.0f + displacement;
 
     vec4 torus;
     torus.rgb = mix(BLUE, GREEN, 0.5f + 0.5f * displacement);
@@ -329,8 +327,6 @@ vec4 map11(in vec3 pos) {
 
     p = pos.xzy;
     torus = sUnionSDF(torus, vec4(torus.rgb, SDF_Torus(p, R, r)), 0.5f);
-
-    torus.w += displacement;
 
     return torus;
 }

@@ -5,7 +5,7 @@
 
 #include "maps.glsl"
 
-const uint MAX_STEPS = 128u;
+const uint MAX_STEPS = 256u;
 const float MIN_DISTANCE = 0.001f;
 const float MAX_DISTANCE = 500.0f;
 
@@ -39,18 +39,13 @@ float raymarch(in Ray ray, inout vec3 color) {
     float distanceFromOrigin = 0.0f;
 
     for(uint i = 0u ; i < MAX_STEPS ; ++i) {
-        if(distanceFromOrigin >= MAX_DISTANCE) {
-            break;
-        }
-
         distance = map(ray.origin + ray.direction * distanceFromOrigin);
+        distanceFromOrigin += distance.w;
 
-        if(abs(distance.w) < MIN_DISTANCE) {
+        if(abs(distance.w) < MIN_DISTANCE || distanceFromOrigin >= MAX_DISTANCE) {
             color = distance.rgb;
             break;
         }
-
-        distanceFromOrigin += distance.w;
     }
 
     return distanceFromOrigin;
