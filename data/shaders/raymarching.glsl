@@ -15,6 +15,8 @@ struct Ray {
 };
 
 vec4 map(in vec3 pos) {
+    hasShadows = true;
+
     switch(active_scene) {
         case 0u: return map1(pos);
         case 1u: return map2(pos);

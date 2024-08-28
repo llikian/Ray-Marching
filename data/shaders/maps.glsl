@@ -12,26 +12,29 @@ const vec3 GREEN = vec3(0.0f, 1.0f, 0.0f);
 const vec3 BLUE = vec3(0.0f, 0.0f, 1.0f);
 
 vec4 map1(in vec3 pos) {
-    vec3 p;
-    
-    p = pos;
-    p.x -= 3.0f * sin(time);
-    float sphere = SDF_Sphere(p, 2.0f);
+    hasShadows = false;
+
+    vec3 p = pos;
+
+    vec4 ground = vec4(0.45f, 0.35f, 0.9f, p.y);
 
     p = pos;
     p.y -= time * 0.5f;
     p = fract(p) - 0.5f;
     p.xz *= rotation2D(time);
     p.zy *= rotation2D(time);
-    float box = SDF_Box(p, vec3(0.1f));
+    vec4 box;
+    box.rgb = vec3(0.333f, 0.25f, 0.666f);
+    box.w = SDF_Box(p, vec3(0.1f));
 
-    float ground = pos.y;
+    vec4 result = unionSDF(ground, box);
 
-    vec3 color = vec3(0.5f, 0.0f, 0.5f);
-    return vec4(color, min(ground, smin(sphere, box, 2.0f)));
+    return result;
 }
 
 vec4 map2(in vec3 pos) {
+    hasShadows = false;
+
     vec3 p;
     pos -= vec3(6.0f, -3.0f, -1.0f);
 
@@ -76,6 +79,8 @@ vec4 map3(in vec3 pos) {
 }
 
 vec4 map4(in vec3 pos) {
+    hasShadows = false;
+
     vec3 p;
     float result;
 
@@ -159,6 +164,8 @@ vec4 map5(in vec3 pos) {
 }
 
 vec4 map6(in vec3 pos) {
+    hasShadows = false;
+
     float ground = SDF_Plane(pos, GREEN, 1.0f);
 
     pos = clamp(pos, -8.0f, 8.0f);
@@ -331,17 +338,14 @@ vec4 map11(in vec3 pos) {
 vec4 map12(in vec3 pos) {
     vec3 p = pos;
 
-    vec4 ground;
-    ground.rgb = checker(p, vec3(0.471f, 0.89f, 0.847f), vec3(0.306f, 0.337f, 0.89f));
-    ground.w = p.y + 10.0f;
+    p.y += 1.0f;
+    vec3 col1 = vec3(0.89f, 0.816f, 0.702f);
+    vec3 col2 = vec3(0.188f, 0.173f, 0.145f);
+    vec4 box;
+    box.rgb = mod(floor(pos.x / 2.0f) + floor(pos.y / 2.0f) + floor(pos.z / 2.0f), 2.0f) == 0.0f ? col1 : col2;
+    box.w = SDF_Box(p, vec3(8.0f, 1.0f, 8.0f));
 
-    float factor = 2.5f;
-    float displacement = sin(time + factor * p.x) * sin(factor * p.y + time) * sin(factor * p.z + time) * 0.5f - 0.5f;
-    vec4 sphere;
-    sphere.rgb = vec3(-displacement, -displacement, 0.25f);
-    sphere.w = SDF_Sphere(p, 10.0f) + displacement;
-
-    vec4 result = unionSDF(ground, sphere);
+    vec4 result = box;
 
     return result;
 }

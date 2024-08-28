@@ -20,8 +20,18 @@ uniform bool hasLighting;
 
 const vec3 LIGHT_POSITION = 30.0f * vec3(2.5f, 7.5f, 2.5f);
 
+bool hasShadows = true;
+
 #include "render.glsl"
 
+void Avoid_C9999_Error() {
+    vec3 pos = vec3(0.0f);
+    
+    getNormal(pos);
+    getNormal(pos);
+}
+
 void main() {
+    Avoid_C9999_Error();
     fragColor = vec4(renderAntiAliasing4(), 1.0f);
 }

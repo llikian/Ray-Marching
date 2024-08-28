@@ -30,9 +30,11 @@ vec3 phongLighting(in Ray ray, in vec3 pos) {
     float specular = 0.25f * pow(max(dot(-ray.direction, reflectionDir), 0.0f), 32.0f);
 
     // Shadows
-    float distance = raymarch(pos + normal * 0.02f, lightDirection);
-    if(distance < length(LIGHT_POSITION - pos)) {
-        return lightColor * ambient;
+    if(hasShadows){
+        float distance = raymarch(pos + normal * 0.02f, lightDirection);
+        if(distance < length(LIGHT_POSITION - pos)) {
+            return lightColor * ambient;
+        }
     }
 
     return lightColor * (ambient + diffuse + specular);
