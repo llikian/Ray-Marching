@@ -36,6 +36,14 @@ public:
     Camera(const Point& position);
 
     /**
+     * @brief Calculates the product of the projection matrix with the view (or look-at) matrix.
+     * @param projection The projection matrix.
+     * @return The product of the projection matrix with the view (or look-at) matrix corresponding
+     * to the camera.
+     */
+    Matrix4 getVPmatrix(const Matrix4& projection);
+
+    /**
      * @brief Getter for the position member.
      * @return The position of the camera.
      */
@@ -83,4 +91,6 @@ private:
     Vector up;    ///< The up vector, cross product of the right vector and the front vector.
 
     const Vector worldUp;
+
+    Matrix4 view; ///< The view matrix corresponding to the camera.
 };

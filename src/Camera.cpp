@@ -11,13 +11,18 @@
 
 Camera::Camera(const Point& position)
     : position(position),
-      worldUp(0.0f, 1.0f, 0.0f) {
+      worldUp(0.0f, 1.0f, 0.0f),
+      view(1.0f) {
 
     const Vector direction = -1.0f * normalize(position);
     pitch = asinf(direction.y);
     yaw = asinf(direction.z / cosf(pitch));
 
     look(vec2());
+}
+
+Matrix4 Camera::getVPmatrix(const Matrix4& projection) {
+    return projection * view;
 }
 
 Point Camera::getPosition() const {
@@ -59,6 +64,10 @@ void Camera::move(CameraControls direction, float deltaTime) {
             position.y -= speed;
             break;
     }
+
+    view[0][3] = -dot(right, position);
+    view[1][3] = -dot(up, position);
+    view[2][3] = dot(front, position);
 }
 
 void Camera::look(vec2 mouseOffset) {
@@ -86,4 +95,19 @@ void Camera::look(vec2 mouseOffset) {
 
     right = normalize(cross(front, worldUp));
     up = normalize(cross(right, front));
+    
+    view[0][0] = right.x;
+    view[0][1] = right.y;
+    view[0][2] = right.z;
+    view[0][3] = -dot(right, position);
+    
+    view[1][0] = up.x;
+    view[1][1] = up.y;
+    view[1][2] = up.z;
+    view[1][3] = -dot(up, position);
+    
+    view[2][0] = -front.x;
+    view[2][1] = -front.y;
+    view[2][2] = -front.z;
+    view[2][3] = dot(front, position);
 }

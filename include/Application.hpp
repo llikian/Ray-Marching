@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "Camera.hpp"
+#include "Light.hpp"
 #include "Shader.hpp"
 #include "maths/vec2.hpp"
 
@@ -77,9 +78,16 @@ private:
     void handleKeyboardEvents();
 
     /**
+     * @brief Calculates the MVP (Matrix-View-Projection) Matrix and sends it to the shader.
+     * @param model The new value of the model matrix. It is a product of translation, scale
+     * and rotation matrices used to apply transformations on the scene's objects.
+     */
+    void calculateMVP(const Matrix4& model);
+
+    /**
      * @brief Initializes the shader and its uniforms.
      */
-    void initShader();
+    void initUniforms();
 
     /**** Variables & Constants ****/
     GLFWwindow* window;  ///< GLFW window.
@@ -96,9 +104,16 @@ private:
     bool cursorVisible; ///< Whether the cursor is currently visible.
 
     Shader* shader; ///< The default shader program.
+    Shader* raymarching; ///< The raymarching shader program.
+
+    Matrix4 projection; ///< The projection matrix.
 
     Camera camera; ///< A first person camera to move around the scene.
 
     unsigned int scene; ///< The id of the current scene.
     bool hasLighting; ///< Whether the scene will calculate lighting.
+
+    DirectionalLight directionalLight;   ///< Light used for global illumination.
+    FlashLight flashlight;               ///< A flashlight.
+    std::vector<PointLight> pointLights; ///< Point lights used to light up smaller areas.
 };

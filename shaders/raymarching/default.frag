@@ -7,6 +7,10 @@
 
 out vec4 fragColor;
 
+in vec2 texCoords;
+
+uniform sampler2D screenTexture;
+
 uniform vec2 resolution;
 uniform float time;
 
@@ -33,5 +37,14 @@ void Avoid_C9999_Error() {
 
 void main() {
     Avoid_C9999_Error();
+
+    vec4 screen = texture(screenTexture, texCoords * 0.5f + 0.5f);
+
     fragColor = vec4(renderAntiAliasing4(), 1.0f);
+
+    if(screen != vec4(0.0f, 0.0f, 0.0f, 1.0f)) {
+        fragColor = screen;
+    } else {
+        fragColor = mix(fragColor, screen, 0.5f);
+    }
 }

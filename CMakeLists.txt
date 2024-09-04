@@ -22,17 +22,21 @@ set(SOURCES
         src/Application.cpp
         src/Camera.cpp
         src/Shader.cpp
+        src/Light.cpp
 
         src/maths/Matrix4.cpp
         src/maths/vec2.cpp
         src/maths/vec3.cpp
         src/maths/vec4.cpp
 
+        src/mesh/Mesh.cpp
+
         # Other Sources
         src/callbacks.cpp
         src/maths/geometry.cpp
         src/maths/transformations.cpp
         src/maths/trigonometry.cpp
+        src/mesh/meshes.cpp
 
         # Libraries
         lib/glad/src/glad.c
