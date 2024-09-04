@@ -216,7 +216,7 @@ void Application::handleKeyboardEvents() {
 }
 
 void Application::initShader() {
-    shader = new Shader("data/shaders/default.vert", "data/shaders/default.frag");
+    shader = new Shader("shaders/default.vert", "shaders/default.frag");
     shader->use();
     shader->setUniform("resolution", width, height);
     shader->setUniform("mouse", 0.5f, 0.5f);
