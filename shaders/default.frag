@@ -24,14 +24,6 @@ bool hasShadows = true;
 
 #include "render.glsl"
 
-void Avoid_C9999_Error() {
-    vec3 pos = vec3(0.0f);
-    
-    getNormal(pos);
-    getNormal(pos);
-}
-
 void main() {
-    Avoid_C9999_Error();
     fragColor = vec4(renderAntiAliasing4(), 1.0f);
 }
