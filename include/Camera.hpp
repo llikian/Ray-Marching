@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "maths/Matrix4.hpp"
+#include "maths/mat4.hpp"
 #include "maths/transformations.hpp"
 #include "maths/vec2.hpp"
 #include "maths/vec3.hpp"

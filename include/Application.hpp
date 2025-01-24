@@ -16,6 +16,8 @@
 #include "Shader.hpp"
 #include "maths/vec2.hpp"
 
+#define SHADER_MAP_FUNCTIONS 12
+
 /**
  * @class Application
  * @brief The core of the engine.
@@ -77,9 +79,9 @@ private:
     void handleKeyboardEvents();
 
     /**
-     * @brief Initializes the shader and its uniforms.
+     * @brief Initializes all shaders.
      */
-    void initShader();
+    void initShaders();
 
     /**** Variables & Constants ****/
     GLFWwindow* window;  ///< GLFW window.
@@ -95,7 +97,7 @@ private:
 
     bool cursorVisible; ///< Whether the cursor is currently visible.
 
-    Shader* shader; ///< The default shader program.
+    Shader* shaders[SHADER_MAP_FUNCTIONS];
 
     Camera camera; ///< A first person camera to move around the scene.
 

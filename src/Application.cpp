@@ -6,15 +6,17 @@
 #include "Application.hpp"
 
 #include <cmath>
+#include <filesystem>
 
 #include "callbacks.hpp"
 #include "maths/geometry.hpp"
+
+namespace filesystem = std::filesystem;
 
 Application::Application()
     : window(nullptr), width(900), height(900),
       time(0.0f), delta(0.0f),
       cursorVisible(false),
-      shader(nullptr),
       camera(Point(0.0f, 2.0f, 5.0f)),
       scene(0), hasLighting(true) {
 
@@ -52,26 +54,28 @@ Application::Application()
     /**** OpenGL ****/
     glViewport(0, 0, width, height);
 
-    /**** Shader ****/
-    initShader();
+    /**** Shaders ****/
+    initShaders();
 }
 
 Application::~Application() {
-    delete shader;
+    for(unsigned int i = 0 ; i < SHADER_MAP_FUNCTIONS ; ++i) {
+        delete shaders[i];
+    }
 
     glfwDestroyWindow(window);
     glfwTerminate();
 }
 
 void Application::run() {
-    float vertices[] {
-      -1.0f, 1.0f,
-      -1.0f, -1.0f,
-      1.0f, -1.0f,
-      1.0f, 1.0f
+    float vertices[]{
+        -1.0f, 1.0f,
+        -1.0f, -1.0f,
+        1.0f, -1.0f,
+        1.0f, 1.0f
     };
 
-    unsigned int indices[] {
+    unsigned int indices[]{
         0, 1, 2,
         0, 2, 3
     };
@@ -98,12 +102,12 @@ void Application::run() {
         delta = glfwGetTime() - time;
         time = glfwGetTime();
 
-        shader->use();
-        shader->setUniform("time", time);
-        shader->setUniform("cameraPos", camera.getPosition());
-        shader->setUniform("cameraFront", camera.getDirection());
-        shader->setUniform("cameraRight", camera.getRight());
-        shader->setUniform("cameraUp", camera.getUp());
+        shaders[scene]->use();
+        shaders[scene]->setUniform("time", time);
+        shaders[scene]->setUniform("cameraPos", camera.getPosition());
+        shaders[scene]->setUniform("cameraFront", camera.getDirection());
+        shaders[scene]->setUniform("cameraRight", camera.getRight());
+        shaders[scene]->setUniform("cameraUp", camera.getUp());
 
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
@@ -119,7 +123,7 @@ void Application::setWindowSize(int width, int height) {
     this->width = width;
     this->height = height;
 
-    shader->setUniform("resolution", width, height);
+    shaders[scene]->setUniform("resolution", width, height);
 }
 
 void Application::handleKeyCallback(int key, int action, int /* mods */) {
@@ -151,20 +155,6 @@ void Application::handleKeyboardEvents() {
                 case GLFW_KEY_ESCAPE:
                     glfwSetWindowShouldClose(window, true);
                     break;
-                case GLFW_KEY_R: {
-                    Shader* temp = shader;
-
-                    try {
-                        initShader();
-                        delete temp;
-                    } catch(const std::exception& exception) {
-                        std::cerr << "ERROR : " << exception.what() << '\n';
-                        shader = temp;
-                    }
-
-                    keys[key.first] = false;
-                    break;
-                }
                 case GLFW_KEY_F5:
                     glfwSetInputMode(window, GLFW_CURSOR,
                                      cursorVisible ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
@@ -191,20 +181,18 @@ void Application::handleKeyboardEvents() {
                     camera.move(CameraControls::downward, delta);
                     break;
                 case GLFW_KEY_UP:
-                    shader->setUniform("active_scene", ++scene);
+                    scene = (scene + 1) % SHADER_MAP_FUNCTIONS;
 
                     keys[key.first] = false;
                     break;
                 case GLFW_KEY_DOWN:
-                    if(scene > 0) {
-                        shader->setUniform("active_scene", --scene);
-                    }
+                    scene = (scene + SHADER_MAP_FUNCTIONS - 1) % SHADER_MAP_FUNCTIONS;
 
                     keys[key.first] = false;
                     break;
                 case GLFW_KEY_L:
                     hasLighting = !hasLighting;
-                    shader->setUniform("hasLighting", hasLighting);
+                    shaders[scene]->setUniform("hasLighting", hasLighting);
 
                     keys[key.first] = false;
                     break;
@@ -215,12 +203,38 @@ void Application::handleKeyboardEvents() {
     }
 }
 
-void Application::initShader() {
-    shader = new Shader("shaders/default.vert", "shaders/default.frag");
-    shader->use();
-    shader->setUniform("resolution", width, height);
-    shader->setUniform("mouse", 0.5f, 0.5f);
-    shader->setUniform("time", 0.0f);
-    shader->setUniform("active_scene", scene);
-    shader->setUniform("hasLighting", hasLighting);
+void Application::initShaders() {
+    unsigned int shaderIDs[3]{
+        Shader::compileShader("shaders/default.vert"),
+        Shader::compileShader("shaders/default.frag"),
+        0
+    };
+
+    std::string path("shaders/maps/map");
+
+    for(unsigned int i = 0 ; i < SHADER_MAP_FUNCTIONS ; ++i) {
+        shaderIDs[2] = Shader::compileShader(path + std::to_string(i) + ".frag");
+        
+        shaders[i] = new Shader(shaderIDs, 3, "Ray-Marching (map" + std::to_string(i) + ')');
+        shaders[i]->use();
+        shaders[i]->setUniform("resolution", static_cast<float>(width), static_cast<float>(height));
+        shaders[i]->setUniform("hasLighting", hasLighting);
+
+        switch(i) {
+            case 0:
+            case 1:
+            case 3:
+            case 5:
+                shaders[i]->setUniform("hasShadows", false);
+                break;
+            default:
+                shaders[i]->setUniform("hasShadows", true);
+                break;
+        }
+
+        glDeleteShader(shaderIDs[2]);
+    }
+
+    glDeleteShader(shaderIDs[0]);
+    glDeleteShader(shaderIDs[1]);
 }
