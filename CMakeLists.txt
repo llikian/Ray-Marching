@@ -23,7 +23,7 @@ set(SOURCES
         src/Camera.cpp
         src/Shader.cpp
 
-        src/maths/Matrix4.cpp
+        src/maths/mat4.cpp
         src/maths/vec2.cpp
         src/maths/vec3.cpp
         src/maths/vec4.cpp
